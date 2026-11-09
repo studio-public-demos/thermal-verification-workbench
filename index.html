@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thermal Verification Workbench — IEC 60890 / IEC 61439-1</title>
+<meta name="description" content="Evidence-led, vendor-neutral temperature-rise verification for low-voltage switchgear enclosures by calculation (IEC TR 60890 / IEC 61439-1). Runs entirely in the browser." />
+<meta property="og:title" content="Thermal Verification Workbench — IEC 60890 / IEC 61439-1" />
+<meta property="og:description" content="Evidence-led, vendor-neutral enclosure temperature-rise verification by calculation. Runs in the browser." />
+<meta property="og:image" content="assets/social-preview.png" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1020'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%233da9fc'%3E%E2%97%86%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+<!-- Excel import (optional). Native CSV import always works without it. -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="demo-banner">
+  Public demonstration &middot; runs entirely in your browser, no data leaves your device &middot;
+  verification <strong>by calculation</strong> (IEC&nbsp;TR&nbsp;60890), not a laboratory type-test certificate.
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">◆</span>
+    <div>
+      <div class="brand-name">Thermal Verification <strong>Workbench</strong></div>
+      <div class="brand-sub">Evidence-led temperature-rise verification &middot; IEC TR 60890 / IEC 61439-1</div>
+    </div>
+  </div>
+  <div class="brand-note">Vendor-neutral &middot; run on your own BOM</div>
+</header>
+
+<main class="layout">
+  <!-- LEFT: inputs -->
+  <section class="panel">
+    <h2><span class="step">1</span> Bill of materials</h2>
+    <p class="hint">Upload your BOM (CSV or Excel) or load the sample. Columns are matched
+      automatically: name/description, quantity, power&nbsp;loss&nbsp;(W), reference.</p>
+    <div class="row">
+      <label class="filebtn">
+        <input type="file" id="bomFile" accept=".csv,.xlsx" hidden />
+        Upload BOM
+      </label>
+      <button class="ghost" id="loadSample">Load sample (solar combiner)</button>
+      <a class="ghost" href="#" id="downloadSample">Download sample CSV</a>
+    </div>
+    <div id="importWarnings" class="warnings"></div>
+
+    <table class="bom" id="bomTable">
+      <thead>
+        <tr><th>Reference</th><th>Description</th><th class="num">Qty</th>
+            <th class="num">Loss (W)</th><th>Evidence</th><th></th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="ghost small" id="addRow">+ Add component</button>
+
+    <h2><span class="step">2</span> Enclosure</h2>
+    <div class="grid">
+      <label>Height (m)<input type="number" id="height" value="1.210" step="0.001" /></label>
+      <label>Width (m)<input type="number" id="width" value="0.748" step="0.001" /></label>
+      <label>Depth (m)<input type="number" id="depth" value="0.250" step="0.001" /></label>
+      <label>Installation
+        <select id="installation">
+          <option value="wall_mounted">Wall-mounted (back covered)</option>
+          <option value="free_standing_all_round">Free-standing, all round</option>
+          <option value="free_standing_covered_end">Free-standing, end of row</option>
+          <option value="wall_mounted_covered_end">Wall-mounted, end of row</option>
+          <option value="central_in_row">Central in row (both sides covered)</option>
+          <option value="central_in_row_wall_mounted">Central in row + wall</option>
+        </select>
+      </label>
+      <label>Horizontal partitions<input type="number" id="partitions" value="0" min="0" /></label>
+      <label class="check"><input type="checkbox" id="hasVent" /> Ventilation openings</label>
+      <label id="ventAreaWrap" class="hidden">Vent area (cm&sup2;)<input type="number" id="ventArea" value="0" /></label>
+    </div>
+
+    <h2><span class="step">3</span> Ambient &amp; limit</h2>
+    <div class="grid">
+      <label>Ambient temp (&deg;C)<input type="number" id="ambient" value="40" /></label>
+      <label>Permissible rise (K)<input type="number" id="permissible" value="15" /></label>
+    </div>
+
+    <h2><span class="step">4</span> Verification gates</h2>
+    <p class="hint">A verified result requires honest confirmation. Leave unchecked if unsure
+      &mdash; the tool will BLOCK rather than print a false pass.</p>
+    <label class="check"><input type="checkbox" id="bomComplete" />
+      This BOM is the complete populated assembly (all heat sources included).</label>
+    <label class="check"><input type="checkbox" id="methodOk" />
+      IEC TR 60890 is applicable (natural convection, within method scope).</label>
+
+    <div class="actions">
+      <button class="primary" id="calcBtn">Calculate &amp; verify</button>
+      <button class="ghost" id="printBtn" disabled>Print report</button>
+    </div>
+  </section>
+
+  <!-- RIGHT: results -->
+  <section class="panel results" id="results">
+    <div class="placeholder" id="placeholder">
+      <h3>Results appear here</h3>
+      <p>Load a BOM (try the sample), set the enclosure and ambient, then calculate. Every
+         number is tagged by evidence quality, and verification blocks when essential data
+         is missing.</p>
+    </div>
+    <div id="report" class="hidden"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>This tool performs temperature-rise verification <strong>by calculation</strong>
+     (IEC TR 60890, as referenced by IEC 61439-1). It is not a laboratory type-test certificate.</p>
+  <p>Built with <a href="https://nebulacloud.studio" target="_blank" rel="noopener">NebulaCloud Studio</a>
+     &middot; <a id="repoLink" href="https://github.com/studio-public-demos" target="_blank" rel="noopener">View project on GitHub</a></p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
