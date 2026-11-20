@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bench Thermal Reference | Studio Showcase</title>
+<style>
+body{font:16px system-ui;color:#182536;background:#f2f5fa;margin:0}main{max-width:66rem;margin:auto;padding:2rem 1.25rem}a{color:#1254a0}article{background:white;padding:1.25rem;border:1px solid #d8e1ef;border-radius:12px;margin:1rem 0}canvas{width:100%;height:auto;background:#eef4fa;display:block}button{margin:.35rem .4rem .35rem 0;padding:.45rem .7rem;background:#fff;color:#182536;border:1px solid #8aa2bf;border-radius:6px}button[aria-pressed=true]{background:#174981;color:white}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:.55rem;border-bottom:1px solid #d8e1ef}.table{overflow:auto}
+</style>
+<main>
+<a href="../">Thermal Verification Workbench</a>
+<h1>Bench Thermal Reference</h1>
+<p>Original synthetic assembly processed through the OpenCascade STEP importer. This static explorer displays saved calculation results.</p>
+<article><h2>Imported assembly</h2><p id="counts" aria-live="polite">Loading saved inventory…</p>
+<canvas id="view" width="880" height="450" role="img" aria-label="Projected STEP-derived occurrence bounds"></canvas>
+<div id="parts" aria-label="Select a CAD occurrence"></div><p id="detail" aria-live="polite"></p>
+<p>Projected occurrence bounds in millimetres. Use the occurrence buttons to highlight individual parts.</p></article>
+<article><h2>Declared dissipation</h2><div class="table"><table><thead><tr><th>Specification item</th><th>Quantity</th><th>W per item</th><th>Subtotal W</th><th>STEP IDs</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p id="subtotal"></p><p>The input wattages are synthetic specification values. The computed subtotal supports an arithmetic check. Temperature rise, measurements, hot spots and design certification are outside this reference case.</p></article>
+<article><h2>Source files and technical evidence</h2><p id="hash"></p><p>Original synthetic dataset dedicated under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</p>
+<ul><li><a href="reference.step" download>Reference STEP</a></li><li><a href="specification.json">Source specification</a></li><li><a href="inventory.json">CAD inventory</a></li><li><a href="results.json">Computed results and reconciliation</a></li><li><a href="technical-report.html">Technical report</a></li><li><a href="annotated-view.jpg">Annotated model screenshot</a></li></ul></article>
+</main><script>
+const byId = id => document.getElementById(id);
+const canvas = byId('view');
+const ctx = canvas.getContext('2d');
+const point = (x,y,z) => [264+1.62*(x-.65*y),375-.88*y-.35*x-2*z];
+function draw(parts, selected) {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for (const p of parts) {
+    const [x,y,z,X,Y,Z] = p.bbox_mm;
+    const v = [[x,y,z],[X,y,z],[X,Y,z],[x,Y,z],[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]].map(a=>point(...a));
+    for (const [n, face] of [[0,[0,1,5,4]],[1,[1,2,6,5]],[2,[4,5,6,7]]]) {
+      ctx.beginPath();
+      face.forEach((i,j)=>j ? ctx.lineTo(...v[i]) : ctx.moveTo(...v[i]));
+      ctx.closePath();
+      const palette = p===selected ? ['#b45b15','#cf7622','#f5aa50'] : p.step_label==='Backplate' ? ['#5c748b','#7690a7','#b1c4d5'] : ['#225b86','#2d719e','#6da9cc'];
+      ctx.fillStyle=palette[n]; ctx.fill(); ctx.strokeStyle='#243e58'; ctx.stroke();
+    }
+    ctx.font='bold 15px system-ui'; ctx.fillStyle='#122848';
+    ctx.fillText(p.part_id,...point((x+X)/2,(y+Y)/2,Z+2));
+  }
+}
+fetch('results.json').then(r=>{if(!r.ok)throw Error('Results unavailable'); return r.json()}).then(data=>{
+  const parts=data.cad.parts;
+  byId('counts').textContent=parts.length+' STEP leaf occurrences across '+data.cad.assembly_branch_count+' assembly group.';
+  byId('hash').textContent='STEP SHA-256 '+data.source_step_sha256;
+  for(const row of data.reconciliation){
+    const tr=byId('rows').insertRow();
+    for(const value of [row.label,row.quantity,row.loss_each_W??'Unspecified',row.subtotal_W??'Unquantified',row.cad_ids.join(', ')]) tr.insertCell().textContent=value;
+  }
+  byId('subtotal').textContent='Calculated subtotal: '+data.declared_loss_subtotal_W.toFixed(2)+' W.';
+  for(const p of parts){
+    const button=document.createElement('button');
+    button.textContent=p.part_id+' · '+p.step_label;
+    button.setAttribute('aria-pressed','false');
+    button.onclick=()=>{
+      for(const b of byId('parts').children)b.setAttribute('aria-pressed',String(b===button));
+      draw(parts,p);
+      byId('detail').textContent=p.part_id+' dimensions: '+p.dimensions_axis_aligned_mm.join(' × ')+' mm.';
+    };
+    byId('parts').append(button);
+  }
+  draw(parts,null);
+}).catch(err=>{byId('counts').textContent=err.message;});
+</script></html>

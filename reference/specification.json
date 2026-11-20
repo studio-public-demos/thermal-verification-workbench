@@ -1,0 +1,37 @@
+{
+  "license": "CC0-1.0",
+  "origin": "Original synthetic benchmark designed for this showcase",
+  "units": "mm and W",
+  "items": [
+    {
+      "label": "Backplate",
+      "nominal_dimensions_mm": [
+        310,
+        210,
+        4
+      ],
+      "quantity": 1,
+      "loss_each_W": null
+    },
+    {
+      "label": "Resistive load module",
+      "nominal_dimensions_mm": [
+        55,
+        32,
+        22
+      ],
+      "quantity": 3,
+      "loss_each_W": 4.5
+    },
+    {
+      "label": "Auxiliary load module",
+      "nominal_dimensions_mm": [
+        42,
+        38,
+        18
+      ],
+      "quantity": 1,
+      "loss_each_W": 2.25
+    }
+  ]
+}

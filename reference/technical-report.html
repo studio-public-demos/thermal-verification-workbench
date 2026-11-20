@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Bench Thermal Reference technical report</title>
+<style>body{font:16px system-ui;max-width:48rem;margin:2rem auto;padding:0 1rem;color:#182536}h2{border-bottom:1px solid #b6c4d4;padding-bottom:.3rem}</style>
+<h1>Bench Thermal Reference</h1>
+<p><a href="./">Interactive results explorer</a></p>
+<h2>Origin and license</h2><p>Original synthetic geometry and specifications authored for a redistributable benchmark. The dataset and generated evidence are dedicated under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</p>
+<h2>Method</h2><p>The native STEP was written from a solid assembly and read back with OpenCascade STEPCAF/XDE. The shared engineering pipeline traversed placed occurrences, measured world-coordinate bounds, matched exact part labels to the source specification and multiplied quantities by the specified loss per item.</p>
+<h2>Results</h2><div id="out">Loading saved results…</div>
+<h2>Verification scope</h2><p>This benchmark checks CAD hierarchy, occurrence placement, quantity reconciliation and the loss arithmetic. The specified losses are synthetic inputs. A temperature-rise test would need a characterized enclosure, installation conditions and validated losses.</p>
+<p><a href="reference.step">STEP</a> · <a href="specification.json">Specification</a> · <a href="inventory.json">Inventory</a> · <a href="results.json">Computed results</a></p>
+<script>fetch('results.json').then(r=>r.json()).then(d=>{const out=document.getElementById('out');out.textContent='The STEP contained '+d.cad.step_leaf_instances+' occurrences in '+d.cad.assembly_branch_count+' assembly group. Quantities matched the specification. Calculated declared dissipation was '+d.declared_loss_subtotal_W.toFixed(2)+' W. STEP SHA-256 '+d.source_step_sha256;});</script></html>

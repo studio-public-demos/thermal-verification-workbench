@@ -183,7 +183,7 @@ function renderReport(r, cooling) {
 
   rep.innerHTML = `
     <div class="verdict ${r.verdict}">
-      <div class="tag">${r.verdict.replace("_", " ")}</div>
+      <div class="tag">${({ VERIFIED: "WITHIN SCREENING TARGET", NOT_VERIFIED: "ABOVE SCREENING TARGET" })[r.verdict] || r.verdict}</div>
       <h3>${esc(r.headline)}</h3>
     </div>
     <div class="metrics">

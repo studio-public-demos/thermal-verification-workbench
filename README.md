@@ -1,5 +1,7 @@
 # Thermal Verification Workbench — Enclosure Temperature-Rise Verification by Calculation (IEC TR 60890 / IEC 61439-1)
 
+The calculator provides illustrative screening. Its coefficients have not been qualified for formal IEC design verification. The [processed CAD reference](reference/) includes an independently authored STEP specimen, source specification, computed results and technical report.
+
 > **Notice**
 > This repository is a public project showcase created using NebulaCloud Studio.
 > The proprietary source code, implementation details, prompts, workflows,

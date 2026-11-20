@@ -118,10 +118,10 @@ export function verify(enclosure, devices, ambient, opts = {}) {
   let verdict, headline;
   if (calc.passes) {
     verdict = Verdict.VERIFIED;
-    headline = `VERIFIED by calculation (IEC TR 60890). Top rise ${calc.delta_t_top_k.toFixed(1)} K is within the permissible ${calc.permissible_rise_k.toFixed(1)} K (margin ${calc.margin_k.toFixed(1)} K).`;
+    headline = `Within the illustrative temperature-rise target. Top rise ${calc.delta_t_top_k.toFixed(1)} K is within the permissible ${calc.permissible_rise_k.toFixed(1)} K (margin ${calc.margin_k.toFixed(1)} K).`;
   } else {
     verdict = Verdict.NOT_VERIFIED;
-    headline = `NOT VERIFIED - top rise ${calc.delta_t_top_k.toFixed(1)} K exceeds the permissible ${calc.permissible_rise_k.toFixed(1)} K. The assembly is under-dimensioned; add cooling or a larger enclosure.`;
+    headline = `Above the illustrative target - top rise ${calc.delta_t_top_k.toFixed(1)} K exceeds the permissible ${calc.permissible_rise_k.toFixed(1)} K. Review the assumed inputs and cooling design before making a sizing decision.`;
   }
 
   return {
