@@ -171,7 +171,7 @@ function renderReport(r, cooling) {
 
   const checklist = r.required_before_certification.length ? `
     <div class="checklist">
-      <div class="block-title" style="margin-top:0">Required before a verified result</div>
+      <div class="block-title" style="margin-top:0">Required before a screening verdict</div>
       <ul>${r.required_before_certification.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
     </div>` : "";
 
@@ -183,7 +183,7 @@ function renderReport(r, cooling) {
 
   rep.innerHTML = `
     <div class="verdict ${r.verdict}">
-      <div class="tag">${({ VERIFIED: "WITHIN SCREENING TARGET", NOT_VERIFIED: "ABOVE SCREENING TARGET" })[r.verdict] || r.verdict}</div>
+      <div class="tag">${({ VERIFIED: "WITHIN SCREENING TARGET", NOT_VERIFIED: "ABOVE SCREENING TARGET", BLOCKED: "SCREENING BLOCKED" })[r.verdict] || r.verdict}</div>
       <h3>${esc(r.headline)}</h3>
     </div>
     <div class="metrics">
