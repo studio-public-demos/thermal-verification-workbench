@@ -4,7 +4,7 @@
  *
  * Wraps the deterministic IEC 60890 calculation with:
  *   1. Evidence classification  (published / assumed / missing) per loss line.
- *   2. Design-verification gates that BLOCK the result when essential evidence
+ *   2. Screening evidence gates that BLOCK the result when essential evidence
  *      is absent, instead of printing a false compliance pass.
  *
  * The verdict is a verification BY CALCULATION per IEC TR 60890, never a
@@ -26,7 +26,7 @@ export const EvidenceClass = {
 };
 
 // Minimum share of modeled loss that must be datasheet-backed before we are
-// willing to report VERIFIED rather than BLOCKED.
+// eligible to show an illustrative screening verdict.
 export const MIN_EVIDENCE_RATIO = 0.80;
 
 const r = (v, n = 2) => {
@@ -76,7 +76,7 @@ export function verify(enclosure, devices, ambient, opts = {}) {
       name: "Complete populated assembly BOM",
       satisfied: bomDeclaredComplete && register.missing_count === 0,
       detail: (register.missing_count || !bomDeclaredComplete)
-        ? `${register.missing_count} line(s) have no power-loss value. A verified result needs every heat source (devices, busbars, joints, SPD, auxiliaries) with a loss figure.`
+        ? `${register.missing_count} line(s) have no power-loss value. The screening verdict requires every heat source (devices, busbars, joints, SPD, auxiliaries) with a loss figure.`
         : "All lines carry a loss value and the BOM is declared complete.",
     },
     {
@@ -109,7 +109,7 @@ export function verify(enclosure, devices, ambient, opts = {}) {
   if (!allGatesOk) {
     return {
       verdict: Verdict.BLOCKED,
-      headline: "Design verification BLOCKED - essential evidence missing. Numbers below are provisional screening only.",
+      headline: "SCREENING BLOCKED — essential evidence is missing. Any numerical results are provisional.",
       register, calculation: calc, gates,
       required_before_certification: required, limitations,
     };
